@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import androidx.gridlayout.widget.GridLayout;
+
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.util.Random;
 
@@ -18,10 +21,15 @@ public class MainActivity extends AppCompatActivity {
     private static final int COLUMN_COUNT = 10;
     private static final int ROW_COUNT = 12;
     private int[][] mineLocation;
+    private int[][] revealed;
     private int mine1 = 0;
     private int mine2 = 0;
     private int mine3 = 0;
     private int mine4 = 0;
+    private Button button;
+    private boolean mining = true;
+    private int numFlags = 0;
+    private int numBombs = 4;
 
 
     // save the TextViews of all cells in an array, so later on,
@@ -35,9 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void randomizeMines(){
         mineLocation = new int[ROW_COUNT][COLUMN_COUNT];
+        revealed = new int[ROW_COUNT][COLUMN_COUNT];
         for (int i = 0; i < ROW_COUNT; i++){
             for (int j =0 ; j < COLUMN_COUNT; j++){
                 mineLocation[i][j] = 0;
+                revealed[i][j] = 0;
             }
         }
 
@@ -67,11 +77,14 @@ public class MainActivity extends AppCompatActivity {
         calculateNearbyMines(mine4);
     }
 
+
+
     void calculateNearbyMines(int mine){
         boolean top = false;
         boolean bottom = false;
         boolean right = false;
         boolean left = false;
+
         if (mine / COLUMN_COUNT != 0){ // top mine
             top = true;
             if (mineLocation[mine / COLUMN_COUNT -1][mine % COLUMN_COUNT] != -1){
@@ -134,6 +147,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        button = findViewById(R.id.minebutton);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (mining){
+                    button.setText("🚩");
+                    mining = false;// Code here executes on main thread after user presses button
+                }else{
+                    mining = true;
+                    button.setText("⛏");
+                }
+            }
+        });
+
         if (savedInstanceState != null) {
             clock = savedInstanceState.getInt("clock");
             running = savedInstanceState.getBoolean("running");
@@ -146,9 +173,9 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < ROW_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
                 TextView tv = new TextView(this );
-                tv.setHeight(dpToPixel(26));
-                tv.setWidth(dpToPixel(26));
-                tv.setTextSize(8);//dpToPixel(32) );
+                tv.setHeight(dpToPixel(25));
+                tv.setWidth(dpToPixel(25));
+                tv.setTextSize(16);//dpToPixel(32) );
                 tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
 
                 tv.setTextColor(Color.GRAY);
@@ -212,26 +239,52 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickTV(View view){
         TextView tv = (TextView) view;
+        final TextView flagView = (TextView) findViewById(R.id.flagView);
+        final TextView bombView = (TextView) findViewById(R.id.bombView);
         int n = findIndexOfCellTextView(tv);
         int i = n/COLUMN_COUNT;
         int j = n%COLUMN_COUNT;
-        String format = String.valueOf(i) +"," + String.valueOf(j) + "," +Integer.toString(mineLocation[i][j]) ;
+        revealed[i][j] = 1;
+        String format = Integer.toString(mineLocation[i][j]) ;
         tv.setText(format);
-        if (tv.getCurrentTextColor() == Color.GRAY) {
-            if (mineLocation[i][j] == -1) {
-                tv.setTextColor(Color.BLACK);
-                tv.setBackgroundColor(Color.RED);
-            } else if (mineLocation[i][j] == 0) {
-                tv.setTextColor(Color.GREEN);
-                tv.setBackgroundColor(Color.parseColor("lime"));
-            }
-            else {
-                tv.setTextColor(Color.BLACK);
-                tv.setBackgroundColor(Color.YELLOW);
-            }
-        }else {
-            tv.setTextColor(Color.GRAY);
-            tv.setBackgroundColor(Color.LTGRAY);
+        if (!mining && mineLocation[i][j] == -1){
+            tv.setTextColor(Color.BLACK);
+            tv.setText("🚩");
+            tv.setBackgroundColor(Color.WHITE);
+            numFlags++;
+            numBombs--;
+            flagView.setText(Integer.toString(numFlags));
+            bombView.setText(Integer.toString(numBombs));
+        }
+        else if (!mining){
+            tv.setTextColor(Color.BLACK);
+            tv.setText("🚩");
+            tv.setBackgroundColor(Color.WHITE);
+            numFlags++;
+            flagView.setText(Integer.toString(numFlags));
+            bombView.setText(Integer.toString(numBombs));
+        }
+        else if (mineLocation[i][j] == -1 && mining) {
+            tv.setTextColor(Color.BLACK);
+            tv.setText("💣");
+            tv.setBackgroundColor(Color.RED);
+        }
+        else if (mineLocation[i][j] == 0 && mining) {
+            tv.setTextColor(Color.GREEN);
+            tv.setBackgroundColor(Color.parseColor("lime"));
+            revealed[0][0] = 1;
+
+        }
+        else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(Color.YELLOW);
         }
     }
+
+    boolean checkBounds(int i , int j){
+        return (i != -1 && i != 13 && j != -1 && j != 10);
+    }
+
+
+
 }
