@@ -84,62 +84,51 @@ public class MainActivity extends AppCompatActivity {
         boolean bottom = false;
         boolean right = false;
         boolean left = false;
+        int row = mine /COLUMN_COUNT;
+        int col = mine % COLUMN_COUNT;
 
-        if (mine / COLUMN_COUNT != 0){ // top mine
+        if (row!= 0){ // top mine
             top = true;
-            if (mineLocation[mine / COLUMN_COUNT -1][mine % COLUMN_COUNT] != -1){
-                mineLocation[mine / COLUMN_COUNT -1][mine % COLUMN_COUNT] += 1;
+            if (mineLocation[row -1][col] != -1){
+                mineLocation[row-1][col] += 1;
             }
         }
-        if (mine / COLUMN_COUNT != 11){ // bottom mine
+        if (row != 11){ // bottom mine
             bottom = true;
-            if (mineLocation[mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT] != -1){
-                mineLocation[mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT] += 1;
+            if (mineLocation[row + 1][col] != -1){
+                mineLocation[row + 1][col] += 1;
             }
         }
-        if (mine % COLUMN_COUNT != 9){ // right mine
+        if (col != 9){ // right mine
             right = true;
-            if (mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT + 1] != -1){
-                mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT + 1] += 1;
+            if (mineLocation [row ][col + 1] != -1){
+                mineLocation [row ][col + 1] += 1;
             }
         }
-        if (mine % COLUMN_COUNT != 0){ // left mine
+        if (col != 0){ // left mine
             left = true;
-            if ( mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT - 1] != -1){
-                mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT - 1] += 1;
+            if ( mineLocation [row ][col - 1] != -1){
+                mineLocation [row ][col - 1] += 1;
             }
         }
-        if (left && top){ // top left mine
-            if ( mineLocation [mine / COLUMN_COUNT -1][mine % COLUMN_COUNT - 1] != -1){
-                mineLocation [mine / COLUMN_COUNT -1 ][mine % COLUMN_COUNT - 1] += 1;
-            }
+        if (left && top && mineLocation [row -1][col - 1] != -1){ // top left mine
+            mineLocation [row-1 ][col - 1] += 1;
         }
-        if (right && top){ // top right mine
-            if ( mineLocation [mine / COLUMN_COUNT - 1][mine % COLUMN_COUNT + 1] != -1){
-                mineLocation [mine / COLUMN_COUNT - 1][mine % COLUMN_COUNT + 1] += 1;
-            }
+        if (right && top && mineLocation [row- 1][col + 1] != -1){ // top right mine
+            mineLocation [row - 1][col + 1] += 1;
         }
-        if (left && bottom){ // bottom left mine
-            if (  mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT - 1] != -1){
-                mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT - 1]+= 1;
-            }
+        if (left && bottom &&  mineLocation [row+ 1][col - 1] != -1){ // bottom left mine
+            mineLocation [row + 1][col - 1]+= 1;
+
         }
-        if (right && bottom){ // bottom right mine
-            if (  mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT + 1] != -1){
-                mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT + 1] += 1;
-            }
+        if (right && bottom && mineLocation [row+ 1][col+ 1] != -1){ // bottom right mine
+            mineLocation [row+ 1][col + 1] += 1;
         }
 
     }
 
     private boolean checkDuplicates(int mine1, int mine2, int mine3, int mine4){
-        if (mine1 == mine2 || mine1 == mine3 || mine1 == mine4){
-            return true;
-        }
-        if (mine2 == mine3 || mine2 == mine4){
-            return true;
-        }
-        return (mine3 == mine4);
+        return (mine1 == mine2 || mine1 == mine3 || mine1 == mine4 || mine2 == mine3 || mine2 == mine4 || mine3 == mine4);
     }
 
     @Override
@@ -148,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         button = findViewById(R.id.minebutton);
-
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (mining){
@@ -272,19 +260,81 @@ public class MainActivity extends AppCompatActivity {
         else if (mineLocation[i][j] == 0 && mining) {
             tv.setTextColor(Color.GREEN);
             tv.setBackgroundColor(Color.parseColor("lime"));
-            revealed[0][0] = 1;
-
+            adjacent(n);
         }
         else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(Color.YELLOW);
+            adjacent(n);
+        }
+
+    }
+
+    void adjacent(int n){
+        if (n-11 > -1){
+            TextView textView = cell_tvs.get(n-11);
+            int row = (n-11) / COLUMN_COUNT;
+            int col = (n-11) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n-10 > -1){
+            TextView textView = cell_tvs.get(n-10);
+            int row = (n-10) / COLUMN_COUNT;
+            int col = (n-10) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n-9 > -1){
+            TextView textView = cell_tvs.get(n-9);
+            int row = (n-9) / COLUMN_COUNT;
+            int col = (n-9) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n-1 > -1){
+            TextView textView = cell_tvs.get(n-1);
+            int row = (n-1) / COLUMN_COUNT;
+            int col = (n-1) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n+1 < 120){
+            TextView textView = cell_tvs.get(n+1);
+            int row = (n+1) / COLUMN_COUNT;
+            int col = (n+1) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n+9 < 120){
+            TextView textView = cell_tvs.get(n+9);
+            int row = (n+9) / COLUMN_COUNT;
+            int col = (n+9) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n+10 < 120){
+            TextView textView = cell_tvs.get(n+10);
+            int row = (n+10) / COLUMN_COUNT;
+            int col = (n+10) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
+        }
+        if (n+11 < 120){
+            TextView textView = cell_tvs.get(n+11);
+            int row = (n+11) / COLUMN_COUNT;
+            int col = (n+11) % COLUMN_COUNT;
+            if (revealed[row][col] != 1  && mineLocation[row][col] >-1){
+                onClickTV(textView);
+            }
         }
     }
-
-    boolean checkBounds(int i , int j){
-        return (i != -1 && i != 13 && j != -1 && j != 10);
-    }
-
-
 
 }
