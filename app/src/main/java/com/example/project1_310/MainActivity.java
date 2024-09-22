@@ -8,13 +8,21 @@ import android.os.Handler;
 import android.view.View;
 import androidx.gridlayout.widget.GridLayout;
 import android.widget.TextView;
+import java.util.Random;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private int clock = 0;
     private boolean running = true;
-    private static final int COLUMN_COUNT = 2;
+    private static final int COLUMN_COUNT = 10;
+    private static final int ROW_COUNT = 12;
+    private int[][] mineLocation;
+    private int mine1 = 0;
+    private int mine2 = 0;
+    private int mine3 = 0;
+    private int mine4 = 0;
+
 
     // save the TextViews of all cells in an array, so later on,
     // when a TextView is clicked, we know which cell it is
@@ -23,6 +31,102 @@ public class MainActivity extends AppCompatActivity {
     private int dpToPixel(int dp) {
         float density = Resources.getSystem().getDisplayMetrics().density;
         return Math.round(dp * density);
+    }
+
+    private void randomizeMines(){
+        mineLocation = new int[ROW_COUNT][COLUMN_COUNT];
+        for (int i = 0; i < ROW_COUNT; i++){
+            for (int j =0 ; j < COLUMN_COUNT; j++){
+                mineLocation[i][j] = 0;
+            }
+        }
+
+        Random rand = new Random();
+        do {
+            mine1 =  rand.nextInt(120);
+            mine2 =  rand.nextInt(120);
+            mine3 = rand.nextInt(120);
+            mine4 =  rand.nextInt(120);
+
+        } while (checkDuplicates(mine1, mine2, mine3, mine4));
+
+        mineLocation[mine1 / COLUMN_COUNT][mine1 % COLUMN_COUNT] = -1;
+        mineLocation[mine2 / COLUMN_COUNT][mine2 % COLUMN_COUNT] = -1;
+        mineLocation[mine3 / COLUMN_COUNT][mine3 % COLUMN_COUNT] = -1;
+        mineLocation[mine4 / COLUMN_COUNT][mine4 % COLUMN_COUNT] = -1;
+        System.out.println(mine1);
+        System.out.println(mine2);
+        System.out.println(mine3);
+        System.out.println(mine4);
+        final TextView mineView = (TextView) findViewById(R.id.mineView);
+        String mines = String.format("%d, %d, %d, %d", mine1, mine2, mine3, mine4);
+        mineView.setText(mines);
+        calculateNearbyMines(mine1);
+        calculateNearbyMines(mine2);
+        calculateNearbyMines(mine3);
+        calculateNearbyMines(mine4);
+    }
+
+    void calculateNearbyMines(int mine){
+        boolean top = false;
+        boolean bottom = false;
+        boolean right = false;
+        boolean left = false;
+        if (mine / COLUMN_COUNT != 0){ // top mine
+            top = true;
+            if (mineLocation[mine / COLUMN_COUNT -1][mine % COLUMN_COUNT] != -1){
+                mineLocation[mine / COLUMN_COUNT -1][mine % COLUMN_COUNT] += 1;
+            }
+        }
+        if (mine / COLUMN_COUNT != 11){ // bottom mine
+            bottom = true;
+            if (mineLocation[mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT] != -1){
+                mineLocation[mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT] += 1;
+            }
+        }
+        if (mine % COLUMN_COUNT != 9){ // right mine
+            right = true;
+            if (mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT + 1] != -1){
+                mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT + 1] += 1;
+            }
+        }
+        if (mine % COLUMN_COUNT != 0){ // left mine
+            left = true;
+            if ( mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT - 1] != -1){
+                mineLocation [mine / COLUMN_COUNT ][mine % COLUMN_COUNT - 1] += 1;
+            }
+        }
+        if (left && top){ // top left mine
+            if ( mineLocation [mine / COLUMN_COUNT -1][mine % COLUMN_COUNT - 1] != -1){
+                mineLocation [mine / COLUMN_COUNT -1 ][mine % COLUMN_COUNT - 1] += 1;
+            }
+        }
+        if (right && top){ // top right mine
+            if ( mineLocation [mine / COLUMN_COUNT - 1][mine % COLUMN_COUNT + 1] != -1){
+                mineLocation [mine / COLUMN_COUNT - 1][mine % COLUMN_COUNT + 1] += 1;
+            }
+        }
+        if (left && bottom){ // bottom left mine
+            if (  mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT - 1] != -1){
+                mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT - 1]+= 1;
+            }
+        }
+        if (right && bottom){ // bottom right mine
+            if (  mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT + 1] != -1){
+                mineLocation [mine / COLUMN_COUNT + 1][mine % COLUMN_COUNT + 1] += 1;
+            }
+        }
+
+    }
+
+    private boolean checkDuplicates(int mine1, int mine2, int mine3, int mine4){
+        if (mine1 == mine2 || mine1 == mine3 || mine1 == mine4){
+            return true;
+        }
+        if (mine2 == mine3 || mine2 == mine4){
+            return true;
+        }
+        return (mine3 == mine4);
     }
 
     @Override
@@ -35,16 +139,18 @@ public class MainActivity extends AppCompatActivity {
             running = savedInstanceState.getBoolean("running");
         }
         runTimer();
+        randomizeMines();
 
         cell_tvs = new ArrayList<TextView>();
-        GridLayout grid = (GridLayout) findViewById(R.id.gridLayout01);
-        for (int i = 2; i<=3; i++) {
-            for (int j = 0; j <= 1; j++) {
-                TextView tv = new TextView(this);
-                tv.setHeight(dpToPixel(64));
-                tv.setWidth(dpToPixel(64));
-                tv.setTextSize(32);//dpToPixel(32) );
+        GridLayout grid = (GridLayout) findViewById(R.id.gridLayout00);
+        for (int i = 0; i < ROW_COUNT; i++) {
+            for (int j = 0; j < COLUMN_COUNT; j++) {
+                TextView tv = new TextView(this );
+                tv.setHeight(dpToPixel(26));
+                tv.setWidth(dpToPixel(26));
+                tv.setTextSize(8);//dpToPixel(32) );
                 tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+
                 tv.setTextColor(Color.GRAY);
                 tv.setBackgroundColor(Color.GRAY);
                 tv.setOnClickListener(this::onClickTV);
@@ -109,10 +215,20 @@ public class MainActivity extends AppCompatActivity {
         int n = findIndexOfCellTextView(tv);
         int i = n/COLUMN_COUNT;
         int j = n%COLUMN_COUNT;
-        tv.setText(String.valueOf(i)+String.valueOf(j));
+        String format = String.valueOf(i) +"," + String.valueOf(j) + "," +Integer.toString(mineLocation[i][j]) ;
+        tv.setText(format);
         if (tv.getCurrentTextColor() == Color.GRAY) {
-            tv.setTextColor(Color.GREEN);
-            tv.setBackgroundColor(Color.parseColor("lime"));
+            if (mineLocation[i][j] == -1) {
+                tv.setTextColor(Color.BLACK);
+                tv.setBackgroundColor(Color.RED);
+            } else if (mineLocation[i][j] == 0) {
+                tv.setTextColor(Color.GREEN);
+                tv.setBackgroundColor(Color.parseColor("lime"));
+            }
+            else {
+                tv.setTextColor(Color.BLACK);
+                tv.setBackgroundColor(Color.YELLOW);
+            }
         }else {
             tv.setTextColor(Color.GRAY);
             tv.setBackgroundColor(Color.LTGRAY);
