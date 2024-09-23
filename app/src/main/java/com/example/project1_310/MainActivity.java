@@ -1,6 +1,7 @@
 package com.example.project1_310;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -69,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(mine2);
         System.out.println(mine3);
         System.out.println(mine4);
-        final TextView mineView = (TextView) findViewById(R.id.mineView);
-        String mines = String.format("%d, %d, %d, %d", mine1, mine2, mine3, mine4);
-        mineView.setText(mines);
+        //final TextView mineView = (TextView) findViewById(R.id.mineView);
+        //String mines = String.format("%d, %d, %d, %d", mine1, mine2, mine3, mine4);
+       // mineView.setText(mines);
         calculateNearbyMines(mine1);
         calculateNearbyMines(mine2);
         calculateNearbyMines(mine3);
@@ -136,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         button = findViewById(R.id.minebutton);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -149,11 +149,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        if (savedInstanceState != null) {
-            clock = savedInstanceState.getInt("clock");
-            running = savedInstanceState.getBoolean("running");
-        }
+        //if (savedInstanceState != null) {
+          //  clock = savedInstanceState.getInt("clock");
+            //running = savedInstanceState.getBoolean("running");
+        //}
         runTimer();
         randomizeMines();
 
@@ -261,6 +260,9 @@ public class MainActivity extends AppCompatActivity {
             score = 0;
             clock = 0;
             running = false;
+            Intent s = new Intent(this, ScoreActivity.class);
+            s.putExtra("score", score);
+            startActivity(s);
         }
         else if (mineLocation[i][j] == 0 && mining) {
             tv.setTextColor(Color.GREEN);
@@ -269,6 +271,9 @@ public class MainActivity extends AppCompatActivity {
             if (numRevealed == 116){
                 score = clock;
                 running = false;
+                Intent s = new Intent(this, ScoreActivity.class);
+                s.putExtra("score", score);
+                startActivity(s);
             }
         }
         else {
@@ -278,6 +283,9 @@ public class MainActivity extends AppCompatActivity {
             if (numRevealed == 116){
                 score = clock;
                 running = false;
+                Intent s = new Intent(this, ScoreActivity.class);
+                s.putExtra("score", score);
+                startActivity(s);
             }
         }
     }
@@ -348,6 +356,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 
 }
