@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean mining = true;
     private int numFlags = 0;
     private int numBombs = 4;
-
+    private int numRevealed = 0;
+    private int score = 0;
 
     // save the TextViews of all cells in an array, so later on,
     // when a TextView is clicked, we know which cell it is
@@ -188,14 +189,14 @@ public class MainActivity extends AppCompatActivity {
         savedInstanceState.putBoolean("running", running);
     }
 
-    public void onClickStart(View view) {
+    public void Start(View view) {
         running = true;
     }
 
-    public void onClickStop(View view) {
+    public void Stop(View view) {
         running = false;
     }
-    public void onClickClear(View view) {
+    public void Clear(View view) {
         running = false;
         clock = 0;
     }
@@ -233,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
         int i = n/COLUMN_COUNT;
         int j = n%COLUMN_COUNT;
         revealed[i][j] = 1;
+        numRevealed++;
         String format = Integer.toString(mineLocation[i][j]) ;
         tv.setText(format);
         if (!mining && mineLocation[i][j] == -1){
@@ -256,18 +258,28 @@ public class MainActivity extends AppCompatActivity {
             tv.setTextColor(Color.BLACK);
             tv.setText("💣");
             tv.setBackgroundColor(Color.RED);
+            score = 0;
+            clock = 0;
+            running = false;
         }
         else if (mineLocation[i][j] == 0 && mining) {
             tv.setTextColor(Color.GREEN);
             tv.setBackgroundColor(Color.parseColor("lime"));
             adjacent(n);
+            if (numRevealed == 116){
+                score = clock;
+                running = false;
+            }
         }
         else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(Color.YELLOW);
             adjacent(n);
+            if (numRevealed == 116){
+                score = clock;
+                running = false;
+            }
         }
-
     }
 
     void adjacent(int n){
@@ -336,5 +348,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }
